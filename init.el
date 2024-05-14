@@ -29,6 +29,10 @@
 (add-to-list 'default-frame-alist '(alpha-background . 75))
 
 
+;; border color 
+(set-face-background 'fringe "white")
+
+
 ;;extra package repository
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
