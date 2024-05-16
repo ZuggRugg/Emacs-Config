@@ -1,5 +1,5 @@
 ;;set default font
- (set-frame-font "Consolas 13" nil t)
+ (set-frame-font "Consolas 14" nil t)
 
 ;;start at full screen
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
@@ -12,25 +12,12 @@
   (tool-bar-mode -1)
   (tooltip-mode -1))
 
-
-;;Alternate theme
-;;(use-package shades-of-purple-theme
-;;:config
-;;(load-theme 'shades-of-purple))
-
-
-;;main theme
-(add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
-(load-theme 'dracula t)
-
+;;theme
+ (load-theme 'timu-spacegrey t)
 
 ;; transparency
-(set-frame-parameter nil 'alpha-background 75)
-(add-to-list 'default-frame-alist '(alpha-background . 75))
-
-
-;; border color 
-(set-face-background 'fringe "white")
+(set-frame-parameter nil 'alpha-background 90)
+(add-to-list 'default-frame-alist '(alpha-background . 90))
 
 
 ;;extra package repository
@@ -54,8 +41,11 @@
 (require 'dashboard)
 (dashboard-setup-startup-hook)
 (setq dashboard-startup-banner '"C:/Users/Shayn/Pictures/Art/Emac.jpg")
-(setq dashboard-week-agenda t)
 (setq dashboard-center-content t)
+(setq dashboard-projects-backend 'projectile)
+(setq dashboard-items '((bookmarks . 5)
+                        (projects  . 5)))
+
 
 
 ;;display lines and add new lines when at end of buffer
@@ -75,7 +65,6 @@
 
 ;; Enable transient mark mode
 (transient-mark-mode)
-
 
 ;;;; Org mode configuration
 ;; Enable Org mode
