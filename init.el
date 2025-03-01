@@ -1,3 +1,7 @@
+;; =========================================================================================================
+;; ZuggRugg Emacs Config File :: Default System Settings ===================================================
+;; =========================================================================================================
+
 ;;set default font
 (set-frame-font "default -outline-Iosevka-regular-normal-normal-mono-17-*-*-*-c-*-iso10646-1" nil t)
 
@@ -11,6 +15,15 @@
 (package-initialize)
 
 
+;; STANDARD FUCKING ENCODING
+(prefer-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-language-environment 'utf-8)
+(set-selection-coding-system 'utf-8)
+
+;; stop the creation of useless ~files
+(setq make-backup-files nil)
+
 ;;increase garbage collection size
 (setq gc-cons-threshold #x40000000)
 
@@ -20,42 +33,57 @@
 (setq frame-resize-pixelwise t)
 (setq frame-inhibit-implied-resize t)
 
-
 ;; maximize screen
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
-
 
 ;;scroll less janky 
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
 (setq pixel-scroll-precision-large-scroll-height 40.0)
 
+;;narrow to region allowed
+(put 'narrow-to-region 'disabled nil)
 
 ;;remove GUI 
 (when window-system
  (menu-bar-mode -1)
  (scroll-bar-mode -1)
+ (window-divider-mode)
  (tool-bar-mode -1)
  (tooltip-mode -1))
 
+;;theme
+(load-theme 'ef-winter t)
 
 ;;only y/n
 (fset 'yes-or-no-p 'y-or-n-p)
 (setq confirm-kill-emacs 'y-or-n-p)
 
-
 ;;silent beep
 (set-message-beep 'asterick)
 
 
+;; =========================================================================================================
+;; ZuggRugg Emacs Config File :: Editing and Macros  =======================================================
+;; =========================================================================================================
 ;;custom keybindings 
 (global-set-key (kbd "C-c w") 'eww-list-bookmarks)
 (global-set-key (kbd "C-x k") 'kill-this-buffer)
-(global-set-key (kbd "C-x C-l") 'reload-init-file)
+(global-set-key (kbd "C-c l") 'reload-init-file)
 (global-set-key (kbd "C-c a") 'org-agenda)
 (global-set-key (kbd "C-c e") 'elfeed)
+(global-set-key (kbd "C-c c") 'compile)
+(global-set-key (kbd "C-c r") 'recompile)
 (global-set-key (kbd "C-c b") 'bookmark-bmenu-list)
-(global-set-key (kbd "C-c s") 'avy-goto-char-2)
-(global-set-key (kbd "C-,") 'rc/duplicate-line)
+(global-set-key (kbd "C-,") 'rc/duplicate-line)    
+(global-set-key (kbd "C-c m") 'mc/edit-lines)    
+(global-set-key (kbd "C-;") 'mc/mark-next-like-this)
+(global-set-key (kbd "C-c C-;") 'mc/mark-all-like-this)
+;; (global-set-key (kbd "C-x C-b") 'ibuffer-list-buffers)
+;; (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+
+;;move-text package default bindings
+(require 'move-text)
+(move-text-default-bindings)
 
 
 (defun rc/duplicate-line ()
@@ -71,9 +99,26 @@
     (forward-char column)))
 
 
-;;theme
-(load-theme 'ef-dream t)
+;;minibuffer framework
+(icomplete-mode)
 
+;;line settings and tweaks
+(setq next-line-add-newlines t)
+;;(line-number-mode -1)
+(global-display-line-numbers-mode 1)
+(setq display-line-numbers-type 'relative)
+(setq-default truncate-lines t)
+(add-hook 'prog-mode-hook #'display-line-numbers-mode)
+
+
+;;(setq mode-line-position 0)
+;;(global-hl-line-mode 1) 
+
+;;rainbow delimiters
+(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
+
+;;Enable transient mark mode
+(transient-mark-mode)
 
 ;;reload init file
 (defun reload-init-file ()
@@ -85,12 +130,13 @@
 ;;pair compeltion
 (electric-pair-mode t)
 
+
 ;; transparency
 (defun t-darker ()
 "medium transparency setting"
 (interactive)
-(set-frame-parameter (selected-frame) 'alpha '(90 . 90))
-(add-to-list 'default-frame-alist '(alpha . (90 . 90)))
+(set-frame-parameter (selected-frame) 'alpha '(93 . 93))
+(add-to-list 'default-frame-alist '(alpha . (93 . 93)))
 )
 
 (defun t-lighter ()
@@ -107,32 +153,75 @@
 (add-to-list 'default-frame-alist '(alpha . (100 . 100)))
 )
 
+;; =========================================================================================================
+;; ZuggRugg Config File :: Misc Packages ===================================================================
+;; =========================================================================================================
+
 ;;golden ratio mode
 (golden-ratio-mode)
 
 ;; modeline
-(require 'doom-modeline)
-(doom-modeline-mode 1)
 (display-time-mode t)
-
 
 ;;icons 
 (use-package nerd-icons)
-(use-package nerd-icons-dired)
-(nerd-icons-dired-mode t)
 (setf dired-kill-when-opening-new-dired-buffer t)
 
 ;; tabs
 ;;(global-tab-line-mode t)
 
-;;auto complete
-(ac-config-default)
+;;company mode 
+(add-hook 'after-init-hook 'global-company-mode)
+
+(use-package corfu
+  ;; Optional customizations
+   ;; :hook ((prog-mode . corfu-mode)
+   ;;        (shell-mode . corfu-mode)
+   ;;        (eshell-mode . corfu-mode))
+  ;; Recommended: Enable Corfu globally.  This is recommended since Dabbrev can
+  ;; be used globally (M-/).  See also the customization variable
+  ;; `global-corfu-modes' to exclude certain modes.
+  :init
+  (global-corfu-mode))
+
+(use-package cape
+  ;; Bind prefix keymap providing all Cape commands under a mnemonic key.
+  ;; Press C-c p ? to for help.
+  :bind ("C-c p" . cape-prefix-map) ;; Alternative key: M-<tab>, M-p, M-+
+  ;; Alternatively bind Cape commands individually.
+  ;; :bind (("C-c p d" . cape-dabbrev)
+  ;;        ("C-c p h" . cape-history)
+  ;;        ("C-c p f" . cape-file)
+  ;;        ...)
+  :init
+  ;; Add to the global default value of `completion-at-point-functions' which is
+  ;; used by `completion-at-point'.  The order of the functions matters, the
+  ;; first function returning a result wins.  Note that the list of buffer-local
+  ;; completion functions takes precedence over the global list.
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-file)
+  (add-hook 'completion-at-point-functions #'cape-elisp-block)
+   (add-hook 'completion-at-point-functions #'cape-history)
+)
+
+;;competions config
+(setopt enable-recursive-minibuffers t)
+(setopt completion-auto-help 'always)
+(setopt completions-max-height 20)
+(setopt completions-format 'one-column)
+(setopt completion-auto-select 'second-tab)
+
+
+(use-package markdown-mode
+  :ensure t
+  :mode ("README\\.md\\'" . gfm-mode)
+  :init (setq markdown-command "multimarkdown"))
+
 
 ;;flymake config
 (use-package flymake
   :ensure nil          ;; This is built-in, no need to fetch it.
   :defer t
-  :hook (prog-mode . flymake-mode)
   :custom
   (flymake-margin-indicators-string
    '((error "!»" compilation-error) (warning "»" compilation-warning)
@@ -142,22 +231,6 @@
 ;;startup buffer setup 
 (setq inhibit-startup-screen t)
 
-
-;;line settings and tweaks
-(setq next-line-add-newlines t)
-;;(line-number-mode -1)
-(global-display-line-numbers-mode 1)
-(setq display-line-numbers-type 'relative)
-(setq-default truncate-lines t)
-(add-hook 'prog-mode-hook #'display-line-numbers-mode)
-;;(setq mode-line-position 0)
-;;(global-hl-line-mode 1) 
-
-;;rainbow delimiters
-(add-hook 'prog-mode-hook #'rainbow-delimiters-mode)
-
-;;Enable transient mark mode
-(transient-mark-mode)
 
 ;;;; Org mode configuration
 (require 'org)
@@ -171,24 +244,27 @@
 (which-key-mode)
 
 
-;;vertical completion framework
-(use-package vertico
-  :init
-(vertico-mode))
-
-
-;; Enable rich annotations using the Marginalia package
-(use-package marginalia
-  :bind (:map minibuffer-local-map
-         ("M-A" . marginalia-cycle))
-          :init  (marginalia-mode))
-
-
 ;;git integration 
 (use-package magit
  :bind (("C-x g" . magit))
  )
 
+
+(require 'conda)
+;; if you want interactive shell support, include:
+(conda-env-initialize-interactive-shells)
+;; if you want eshell support, include:
+(conda-env-initialize-eshell)
+;; if you want auto-activation (see below for details), include:
+(conda-env-autoactivate-mode t)
+;; if you want to automatically activate a conda environment on the opening of a file:
+;; (add-hook 'find-file-hook (lambda () (when (bound-and-true-p conda-project-env-path)
+;;                                           (conda-env-activate-for-buffer))))
+
+
+(require 'multiple-cursors)
+
+;;pulsar package
 (require 'pulsar)
 (pulsar-global-mode 1)
 (setq pulsar-delay 0.070)
@@ -199,13 +275,13 @@
 (require 'diminish)
 (diminish 'rainbow-delimiters-mode "")
 (diminish 'auto-complete-mode "")
-(diminish 'projectile-mode "")
+;;(diminish 'projectile-mode "")
 (diminish 'eldoc-mode "Eldoc")
 (diminish 'golden-ratio-mode "")
 (diminish 'javascript-mode "JS")
 
 
-;;elfeed
+;;elfeed list
 (setq elfeed-search-filter "@4-weeks-ago +unread")
 (setq elfeed-search-title-max-width 100)
 (setq elfeed-search-title-min-width 30)
@@ -222,39 +298,58 @@
         ("https://openrss.org/www.reuters.com/world/" news)
 	("https://rss.politico.com/politics-news.xml" politics)
 	("https://www.propublica.org/feeds/propublica/main" politics)
-	("https://www.royalroad.com/fiction/syndication/58180" novel)
-        ("https://www.royalroad.com/fiction/syndication/86047" novel)
-        ("https://www.royalroad.com/fiction/syndication/61228" novel)
-        ("https://www.royalroad.com/fiction/syndication/62125" novel)
-        ("https://www.royalroad.com/fiction/syndication/83294" novel)
-	("https://www.royalroad.com/fiction/syndication/81642" novel)
 	("https://fakenous.substack.com/feed" blog)
         ("https://hhyu.org/index.xml" blog)
 	("https://www.dorfonlaw.org/feeds/posts/default?alt=rss" blog)
 	("https://adamgarfinkle.substack.com/feed" blog)
-	("https://greyenlightenment.com/feed/" blog)
 	("https://www.ntufilmsociety.com/exposure?format=rss" blog)
 ))
                                     
 
-
-(projectile-mode +1)
-(define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-
   (add-hook 'after-init-hook
     (lambda ()
       (message "Emacs has fully loaded. This code runs after startup.")
-
       ;; Insert a welcome message in the *scratch* buffer displaying loading time and activated packages.
       (with-current-buffer (get-buffer-create "*scratch*")
         (insert (format
-                 ";;    Welcome to Emacs!
-;;
-;;    Loading time : %s
-;;    Packages     : %s
-"
-                  (emacs-init-time)
-                  (number-to-string (length package-activated-list)))))))
+"        Emacs, a GNU text editor
+ ⠀⠀⠀⢰⠶⣄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⠶⠲⣄⠀
+ ⠀⠀⣠⡟⠀⠈⠙⢦⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⡶⣦⣀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠾⠋⠁⠀⠀⢽⡄
+ ⠀⠀⡿⠀⠀⠀⠀⠀⠉⠷⣄⣀⣤⠤⠤⠤⠤⢤⣷⡀⠙⢷⡄⠀⠀⠀⠀⣠⠞⠉⠀⠀⠀⠀⠀⠈⡇
+ ⠀⢰⡇⠀⠀⠀⠀⠀⠀⠀⠉⠳⣄⠀⠀⠀⠀⠀⠈⠁⠀⠀⠹⣦⠀⣠⡞⠁⠀⠀⠀⠀⠀⠀⠀⠀⡗
+ ⠀⣾⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⣻⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣏
+ ⠀⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡇
+ ⠀⡿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣾⠂
+ ⠀⢿⠀⠀⠀⠀⣤⣤⣤⣀⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⣤⣤⣤⣤⡀⠀⠀⠀⠀⠀⣸⠇⠀
+ ⠀⠘⣇⠀⠀⠀⠀⠉⠉⠛⠛⢿⣶⣦⠀⠀⠀⠀⠀⠀⢴⣾⣟⣛⡋⠋⠉⠉⠁⠀⠀⠀⠀⣴⠏⠀⠀
+ ⢀⣀⠙⢷⡄⠀⠀⣀⣤⣶⣾⠿⠋⠁⠀⢴⠶⠶⠄⠀⠀⠉⠙⠻⠿⣿⣷⣶⡄⠀⠀⡴⠾⠛⠛⣹⠇
+ ⢸⡍⠉⠉⠉⠀⠀⠈⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠀⠀⠀⠀⣬⠷⣆⣠⡤⠄⢀⣤⠞⠁⠀
+ ⠈⠻⣆⡀⠶⢻⣇⡴⠖⠀⠀⠀⣴⡀⣀⡴⠚⠳⠦⣤⣤⠾⠀⠀⠀⠀⠀⠘⠟⠋⠀⠀⠀⢻⣄⠀⠀
+ ⠀⠀⣼⠃⠀⠀⠉⠁⠀⠀⠀⠀⠈⠉⢻⡆⠀⠀⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⠀⠀
+ ⠀⢠⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⡀⠀⠀⢀⡇⠀⠀⠀⠀⠀⠀⠀⠀⣀⡿⠧⠿⠿⠟⠀⠀
+ ⠀⣾⡴⠖⠛⠳⢦⣿⣶⣄⣀⠀⠀⠀⠀⠘⢷⣀⠀⣸⠃⠀⠀⠀⣀⣀⣤⠶⠚⠉⠀⠀⠀⠀⠀⠀⠀
+ ⠀⠀⠀⠀⠀⠀⠀⠈⢷⡀⠈⠻⠦⠀⠀⠀⠀⠉⠉⠁⠀⠀⠀⠀⠹⣆⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+ ⠀⠀⠀⠀⠀⠀⠀⢀⡴⠟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢳⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀
+ ⠀⠀⠀⠀⠀⠀⢠⡟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠻⡄⠀⠀⠀⠀⠀⠀⠀⠀
+ ⠀⠀⠀⠀⠀⠀⠈⠉⠛⠛⢲⡗⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢻⡆⠀⠀⠀⠀⠀⠀⠀
+ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀
+ ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀
+    Emacs version: %s
+    Loading time : %s
+    Packages     : %s
+"                
+ (substring (emacs-version) 0 15)
+ (emacs-init-time)
+ (number-to-string (length package-activated-list)))))))
+
+;;create new session for org-clock
+(defun session-new(num)
+"Create a new session"
+(interactive "sEnter Session Number: ")
+(insert (format"* TODO - Session %s" num)
+(insert "\n")))
+
+
 
 
 
