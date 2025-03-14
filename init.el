@@ -52,7 +52,7 @@
  (tooltip-mode -1))
 
 ;;theme
-(load-theme 'ef-winter t)
+(load-theme 'modus-vivendi t)
 
 ;;only y/n
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -78,12 +78,34 @@
 (global-set-key (kbd "C-c m") 'mc/edit-lines)    
 (global-set-key (kbd "C-;") 'mc/mark-next-like-this)
 (global-set-key (kbd "C-c C-;") 'mc/mark-all-like-this)
-;; (global-set-key (kbd "C-x C-b") 'ibuffer-list-buffers)
-;; (global-set-key (kbd "C-<") 'mc/mark-previous-like-this)
+(global-set-key (kbd "C-c C-c") 'comment-region)
+(global-set-key (kbd "M-p") 'move-text-up)
+(global-set-key (kbd "M-n") 'move-text-down)
+
+
 
 ;;move-text package default bindings
 (require 'move-text)
-(move-text-default-bindings)
+
+;; yasnippet
+(add-to-list 'load-path
+              "~/.emacs.d/plugins/yasnippet")
+(require 'yasnippet)
+(yas-global-mode 1)
+
+
+
+(defun hi-comments ()
+"highlight-comments in C++ or C mode that follow '//' format"
+(interactive)
+(highlight-lines-matching-regexp "//" 'hi-yellow)
+)
+
+(defun rm-comments ()
+"remove highlights on comments"
+(interactive)
+(unhighlight-regexp t)
+)
 
 
 (defun rc/duplicate-line ()
@@ -101,6 +123,8 @@
 
 ;;minibuffer framework
 (icomplete-mode)
+;; (setf completion-styles '(basic flex))
+
 
 ;;line settings and tweaks
 (setq next-line-add-newlines t)
@@ -130,7 +154,6 @@
 ;;pair compeltion
 (electric-pair-mode t)
 
-
 ;; transparency
 (defun t-darker ()
 "medium transparency setting"
@@ -157,6 +180,9 @@
 ;; ZuggRugg Config File :: Misc Packages ===================================================================
 ;; =========================================================================================================
 
+(require 'simple-httpd)
+;;(setq httpd-root "Desktop/Programming/")
+
 ;;golden ratio mode
 (golden-ratio-mode)
 
@@ -165,7 +191,10 @@
 
 ;;icons 
 (use-package nerd-icons)
+
 (setf dired-kill-when-opening-new-dired-buffer t)
+;;(setq default-directory "/Desktop/")
+(add-hook 'dired-mode-hook (lambda () (dired-hide-details-mode 1)))
 
 ;; tabs
 ;;(global-tab-line-mode t)
@@ -205,11 +234,11 @@
 )
 
 ;;competions config
-(setopt enable-recursive-minibuffers t)
-(setopt completion-auto-help 'always)
-(setopt completions-max-height 20)
-(setopt completions-format 'one-column)
-(setopt completion-auto-select 'second-tab)
+;; (setopt enable-recursive-minibuffers t)
+;; (setopt completion-auto-help 'always)
+;; (setopt completions-max-height 20)
+;; (setopt completions-format 'one-column)
+;; (setopt completion-auto-select 'second-tab)
 
 
 (use-package markdown-mode
@@ -237,6 +266,7 @@
 ;;(setq org-startup-folded t)
 (setq org-return-follows-link t)
 (add-hook 'org-mode-hook 'visual-line-mode)
+;;(setq org-agenda-files '("FILE_PATH"))
 
 
 (add-to-list 'load-path "path/to/which-key.el")
@@ -249,22 +279,8 @@
  :bind (("C-x g" . magit))
  )
 
-
-(require 'conda)
-;; if you want interactive shell support, include:
-(conda-env-initialize-interactive-shells)
-;; if you want eshell support, include:
-(conda-env-initialize-eshell)
-;; if you want auto-activation (see below for details), include:
-(conda-env-autoactivate-mode t)
-;; if you want to automatically activate a conda environment on the opening of a file:
-;; (add-hook 'find-file-hook (lambda () (when (bound-and-true-p conda-project-env-path)
-;;                                           (conda-env-activate-for-buffer))))
-
-
 (require 'multiple-cursors)
 
-;;pulsar package
 (require 'pulsar)
 (pulsar-global-mode 1)
 (setq pulsar-delay 0.070)
@@ -281,7 +297,7 @@
 (diminish 'javascript-mode "JS")
 
 
-;;elfeed list
+;;elfeed
 (setq elfeed-search-filter "@4-weeks-ago +unread")
 (setq elfeed-search-title-max-width 100)
 (setq elfeed-search-title-min-width 30)
@@ -342,16 +358,10 @@
  (emacs-init-time)
  (number-to-string (length package-activated-list)))))))
 
-;;create new session for org-clock
-(defun session-new(num)
+
+(defun session-new(num title)
 "Create a new session"
-(interactive "sEnter Session Number: ")
-(insert (format"* TODO - Session %s" num)
-(insert "\n")))
-
-
-
-
-
+(interactive "nEnter Session Number: \nsEnter Session Title:")
+(insert (format "* TODO Session %d - %s" num title)))
 
 
