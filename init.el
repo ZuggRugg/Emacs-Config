@@ -7,6 +7,10 @@
 
 (setq custom-file "~/.emacs.d/.emacs.custom")
 
+;;load zuggrugg lisp file for config functions.
+(add-to-list 'load-path "~/.emacs.d/zugg.el")
+(load "~/.emacs.d/zugg.el")
+
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 ;; Comment/uncomment this line to enable MELPA Stable if desired. See`package-archive-priorities
@@ -95,31 +99,6 @@
 
 
 
-(defun hi-comments ()
-"highlight-comments in C++ or C mode that follow '//' format"
-(interactive)
-(highlight-lines-matching-regexp "//" 'hi-yellow)
-)
-
-(defun rm-comments ()
-"remove highlights on comments"
-(interactive)
-(unhighlight-regexp t)
-)
-
-
-(defun rc/duplicate-line ()
-  "Duplicate current line"
-  (interactive)
-  (let ((column (- (point) (point-at-bol)))
-        (line (let ((s (thing-at-point 'line t)))
-                (if s (string-remove-suffix "\n" s) ""))))
-    (move-end-of-line 1)
-    (newline)
-    (insert line)
-    (move-beginning-of-line 1)
-    (forward-char column)))
-
 
 ;;minibuffer framework
 (icomplete-mode)
@@ -154,34 +133,12 @@
 ;;pair compeltion
 (electric-pair-mode t)
 
-;; transparency
-(defun t-darker ()
-"medium transparency setting"
-(interactive)
-(set-frame-parameter (selected-frame) 'alpha '(93 . 93))
-(add-to-list 'default-frame-alist '(alpha . (93 . 93)))
-)
-
-(defun t-lighter ()
-"lightest transparancy setting"
-(interactive)
-(set-frame-parameter (selected-frame) 'alpha '(85 . 85))
-(add-to-list 'default-frame-alist '(alpha . (85 . 85)))
-)
-
-(defun t-default ()
-"change transparency back to normal"
-(interactive)
-(set-frame-parameter (selected-frame) 'alpha '(100 . 100))
-(add-to-list 'default-frame-alist '(alpha . (100 . 100)))
-)
-
 ;; =========================================================================================================
 ;; ZuggRugg Config File :: Misc Packages ===================================================================
 ;; =========================================================================================================
 
 (require 'simple-httpd)
-;;(setq httpd-root "Desktop/Programming/")
+(setq httpd-root "PATH")
 
 ;;golden ratio mode
 (golden-ratio-mode)
@@ -193,7 +150,7 @@
 (use-package nerd-icons)
 
 (setf dired-kill-when-opening-new-dired-buffer t)
-;;(setq default-directory "/Desktop/")
+(setq default-directory "PATH")
 (add-hook 'dired-mode-hook (lambda () (dired-hide-details-mode 1)))
 
 ;; tabs
@@ -266,7 +223,7 @@
 ;;(setq org-startup-folded t)
 (setq org-return-follows-link t)
 (add-hook 'org-mode-hook 'visual-line-mode)
-;;(setq org-agenda-files '("FILE_PATH"))
+(setq org-agenda-files '("PATH"))
 
 
 (add-to-list 'load-path "path/to/which-key.el")
@@ -357,11 +314,3 @@
  (substring (emacs-version) 0 15)
  (emacs-init-time)
  (number-to-string (length package-activated-list)))))))
-
-
-(defun session-new(num title)
-"Create a new session"
-(interactive "nEnter Session Number: \nsEnter Session Title:")
-(insert (format "* TODO Session %d - %s" num title)))
-
-
