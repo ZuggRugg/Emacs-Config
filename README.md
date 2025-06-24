@@ -5,8 +5,8 @@ I have included two custom themes that I have created called Zugg Dark and Monoc
 
 
 ## Zugg Dark
-![zg-dark](http://github.com/ZuggRugg/Emacs-Config/img/zg.png)
+![zg-dark](https://github.com/ZuggRugg/Emacs-Config/tree/main/img/zd.png)
 
 
 ## Monochrome Blackboard
-![mb](http://github.com/ZuggRugg/Emacs-Config/img/mb.png)
+![mb](https://github.com/ZuggRugg/Emacs-Config/tree/main/img/mb.png)
